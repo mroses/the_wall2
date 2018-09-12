@@ -1,0 +1,38 @@
+{% extends './layout.html' %}
+{% block body %}
+    <h2>Login or Register</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class='errors'>
+            {% for message in messages %}
+                <li> {{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <div class='form-container'>
+        <h3>Register</h3>
+        <form action='/users/create' method='post'>
+            <label for='first_name'>First Name</label>
+            <input type='text' name='first_name' placeholder="Dave">
+            <label for='last_name'>Last Name</label>
+            <input type='text' name='last_name' placeholder="Ray">
+            <label for='email'>Email</label>
+            <input type='email' name='email' placeholder="Dave@Ray.com">
+            <label for='password'>Password</label>
+            <input type='password' name='password'>
+            <label for='confirm_pw'>Confrim Password</label>
+            <input type='password' name='confirm_pw'>
+            <input type='submit' value='register'>
+        </form>
+
+        <h3>Login</h3>
+        <form action='/login' method='post'>
+            <label for='email'>Email</label>
+            <input type='email' name='email' placeholder="Dave@Ray.com">
+            <label for='password'>Password</label>
+            <input type='password' name='password'>
+            <input type='submit' value='login'>
+        </form>
+    </div>
+{% endblock %}
