@@ -34,7 +34,7 @@ def register():
         errors.append('passwords must match')
 
     if errors:
-        for error in error:
+        for error in errors:
             flash(error)
         return redirect('/')
 
@@ -101,15 +101,52 @@ def login():
         flash('email or password invalid')
         return redirect('/')
     
-    session['user_id'] = user['id'] 
+    session['user_id'] = user['id']
     return redirect('/wall')
  
+@app.route('/posts/create', methods=["POST"])
+def create_post():
+    if len(request.form['content']) < 2:
+        flash('Post must be at least 2 characters')
+        return redirect('/wall')
+
+    post_query = 'INSERT INTO posts (content, user_id, created_at, updated_at) VALUES (:content, :user_id, NOW(), NOW())'
+    data = {
+        'content': request.form['content'],
+        'user_id': session['user_id']
+    }
+    mysql.query_db(post_query, data)
+    return redirect('/wall')
+
+@app.route('/comments/create/<post_id>', methods=['POST'])
+def create_comment(post_id):
+    if len(request.form['content']) <2:
+        flash('comment must be at least 2 characters long')
+        return redirect('/')
+
+    comment_query = 'INSERT INTO comments (content, user_id, post_id, created_at, updated_at) VALUES (:content, :user_id, :post_id, NOW(), NOW())'
+    data = {
+        'content': request.form['content'],
+        'user_id': session['user_id'],
+        'post_id': post_id
+    }
+    mysql.query_db(comment_query, data)
+    return redirect('/wall')
+
 @app.route('/wall')
 def wall():
     if not 'user_id' in session:
         return redirect('/')
+
+    post_query = 'SELECT users.first_name AS first, users.last_name AS last, posts.content AS content, posts.created_at AS created_at, posts.id AS id FROM posts JOIN users ON users.id = posts.user_id'
+    posts = mysql.query_db(post_query)
+    
+    comment_query = 'SELECT comments.content AS content, comments.post_id AS post_id, users.first_name AS first, users.last_name AS last, comments.created_at AS created_at FROM comments JOIN users ON users.id = comments.user_id'
+    comments = mysql.query_db(comment_query)
     data = {
-        'title': 'the wall'
+        'title': 'the wall',
+        'posts': posts,
+        'comments': comments
     }
     return render_template('wall.html', data=data)
 

@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "./layout.html" %}
 {% block body %}
     <h2>The Wall</h2>
     {% with messages = get_flashed_messages() %}
@@ -10,4 +10,29 @@
             </ul>
         {% endif %}
     {% endwith %}
+
+    <form action='/posts/create', method='post'>
+        <textarea name='content' cols=50 rows=20></textarea>
+        <input type='submit' value='Add Post'>
+    </form>
+
+    <h4>Wall Posts</h4>
+    {% if data['posts'] %}
+        {% for posts in data['posts'] %}
+        <h5>{{ post['first'] }} {{ post['last'] }} = {{ post['created_at'] }}</h5>
+            <p>{{ post['content'] }}</p>
+            {% if data['comments'] %}
+                {% for comment in data['comments'] %}
+                    {% if comment['post_id'] == post['id'] %}
+                        <h5>{{ comment['first'] }} {{ comment['last'] }} - {{ comment['created_at'] }}</h5>
+                        <p>{{ comment['content'] }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <form action="/comments/create/{{ post['id'] }}" method='post'>
+                <textarea name='content' cols=50 row=20></textarea>
+                <input type='submit' value='Add Post!'>
+            </form>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
